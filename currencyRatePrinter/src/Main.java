@@ -1,16 +1,24 @@
-import org.springframework.web.client.RestClient;
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 
 public class Main {
     private static final String HOST = "http://localhost:8080";
 
     private static final String ENDPOINT = "/api/currency";
 
-    public static void main(String[] args) throws InterruptedException {
-        RestClient client = RestClient.create(HOST + ENDPOINT);
+    public static void main(String[] args) throws InterruptedException, IOException {
+        HttpClient client = HttpClient.newBuilder().build();
 
         while (true) {
-            CurrencyResponse response = client.get().retrieve().body(CurrencyResponse.class);
-            System.out.println(String.format("Получен курс %s на момент времени %s", response.value, response.calculationDatetime));
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(HOST + ENDPOINT))
+                    .GET()
+                    .build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            System.out.println("Получен ответ от currencyProvider " + response.body());
             Thread.sleep(5000);
         }
     }
