@@ -1,16 +1,17 @@
-package com.currency_rate_provider;
+package com.currencyRatePrinter.currencyRatePrinter;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
+@EnableScheduling
 @EnableDiscoveryClient
-public class CurrencyRateProviderApplication {
+public class CurrencyRatePrinterApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(CurrencyRateProviderApplication.class, args);
+		SpringApplication.run(CurrencyRatePrinterApplication.class, args);
 	}
 
 }

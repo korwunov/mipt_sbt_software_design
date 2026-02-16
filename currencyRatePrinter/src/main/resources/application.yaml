@@ -1,0 +1,11 @@
+server:
+  port: 9090
+
+spring:
+  application:
+    name: currencyRatePrinter
+    clientRequestInterval: 5000
+    currencyRateProviderHost: http://currency-rate-provider
+  cloud:
+    zookeeper:
+      connect-string: localhost:2181
