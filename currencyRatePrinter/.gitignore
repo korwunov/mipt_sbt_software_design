@@ -30,3 +30,7 @@ bin/
 
 .idea
 /.idea/
+
+gradlew
+gradlew.bat
+HELP.md
