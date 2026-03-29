@@ -1,5 +1,50 @@
 version: '3'
 services:
+  currency_rate_provider:
+    image: currency_rate_provider_img
+    container_name: currency_rate_provider
+    ports:
+      - "8080:8080"
+    depends_on:
+      - prometheus
+    networks:
+      - currency_network
+
+  currency_rate_printer:
+    image: currency_rate_printer_img
+    container_name: currency_rate_printer
+    ports:
+      - "9090:9090"
+    depends_on:
+      - prometheus
+    networks:
+      - currency_network
+
+  zookeeper:
+    image: zookeeper:3.8.3
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+      - "2182:2182"
+      - "8080:8080"
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_SERVERS: server.1=zookeeper:2888:3888;2181
+      ZOO_4LW_COMMANDS_WHITELIST: '*'
+      JVMFLAGS: >
+        -Dcom.sun.management.jmxremote
+        -Dcom.sun.management.jmxremote.port=2182
+        -Dcom.sun.management.jmxremote.authenticate=false
+        -Dcom.sun.management.jmxremote.ssl=false
+        -javaagent:/opt/jmx_exporter/jmx_prometheus_javaagent.jar=9999:/opt/jmx_exporter/zookeeper.yaml
+    volumes:
+      - zookeeper_data:/data
+      - zookeeper_datalog:/datalog
+      - ./zookeeper.yaml:/opt/jmx_exporter/zookeeper.yaml
+      - ./jmx_prometheus_javaagent.jar:/opt/jmx_exporter/jmx_prometheus_javaagent.jar
+    networks:
+      - currency_network
+
   postgres:
     image: postgres:15
     environment:
@@ -10,6 +55,9 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+    networks:
+      - currency_network  
+
   pact-broker:
     image: pactfoundation/pact-broker
     environment:
@@ -22,5 +70,49 @@ services:
       - "9292:9292"
     depends_on:
       - postgres
+    networks:
+      - currency_network
+
+  zookeeper-exporter:
+    image: emilevauge/zookeeper-exporter
+    container_name: zookeeper-exporter
+    ports:
+      - "9141:9141"
+    environment:
+      ZK_ADDR: zookeeper:2181
+      ZK_CLIENT_CERT_FILE: ""
+      ZK_CLIENT_KEY_FILE: ""
+      ZK_CA_CERT_FILE: ""
+    depends_on:
+      - zookeeper
+    networks:
+      - currency_network
+
+  prometheus:
+    image: 'prom/prometheus'
+    container_name: 'prometheus'
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus:/etc/prometheus
+    command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml
+    networks:
+      - currency_network
+
+  grafana:
+    image: 'grafana/grafana-enterprise'
+    container_name: 'grafana'
+    depends_on:
+      - prometheus
+    ports:
+      - 3000:3000
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - currency_network
+
 volumes:
   postgres_data:
+
+network:
+  currency_network

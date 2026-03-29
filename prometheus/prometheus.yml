@@ -1,0 +1,11 @@
+scrape_configs:
+  - job_name: "spring-actuator"
+    metrics_path: /actuator/prometheus
+    scrape_interval: 5s
+    static_configs:
+    - targets: ["currency_rate_provider:8080", "currency_rate_printer:9090"]
+
+  - job_name: "zookeper-exporter"
+    metrics_path: '/metrics'
+    static_configs:
+    - targets: ["zookeeper-exporter:9141"]

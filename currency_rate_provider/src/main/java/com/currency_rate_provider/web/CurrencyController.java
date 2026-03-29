@@ -18,6 +18,8 @@ public class CurrencyController {
     @GetMapping
     public CurrencyResponse getCurrency() {
         log.info("Получен GET запрос на получение курса");
-        return currencyRateService.getCurrency();
+        CurrencyResponse response = currencyRateService.getCurrency();
+        log.info("Подготовлен ответ {}", response);
+        return response;
     }
 }
