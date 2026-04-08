@@ -4,9 +4,12 @@ import com.currency_rate_provider.web.dto.CurrencyResponse;
 import com.currency_rate_provider.services.CurrencyRateService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.server.ResponseStatusException;
 
 @Log4j2
 @RestController
@@ -18,6 +21,13 @@ public class CurrencyController {
     @GetMapping
     public CurrencyResponse getCurrency() {
         log.info("Получен GET запрос на получение курса");
-        return currencyRateService.getCurrency();
+        try {
+            CurrencyResponse response = currencyRateService.getCurrency();
+            log.info("Подготовлен ответ {}", response);
+            return response;
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY);
+        }
+
     }
 }

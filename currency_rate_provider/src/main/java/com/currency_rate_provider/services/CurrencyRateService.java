@@ -16,6 +16,10 @@ public class CurrencyRateService {
         log.debug("Вызван метод getCurrency");
         Random rdm = new Random();
         double value = rdm.nextDouble() * rdm.nextInt((1000 - 10) + 1) + 10;
+
+        // для тестирования метрики: если целая часть курса - четное число, тогда выбросим исключение и севрер ответит со статусом 500
+        if ((int) value % 2 == 0) throw new RuntimeException();
+
         LocalDateTime dttm = LocalDateTime.now();
         log.debug("Рассчитано значение курса {} для даты-времени {}", value, dttm);
         return new CurrencyResponse()
