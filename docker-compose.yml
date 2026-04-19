@@ -111,8 +111,68 @@ services:
     networks:
       - currency_network
 
+  jenkins:
+    image: jenkins/jenkins:lts
+    container_name: jenkins
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./jenkins_data:/var/jenkins_home
+      - ./plugins.txt:/usr/share/jenkins/ref/plugins.txt
+    #command: jenkins-plugin-cli -f /usr/share/jenkins/ref/plugins.txt
+    networks:
+      - currency_network
+      
+  ssh-agent:
+    image: jenkins/ssh-agent
+    networks:
+      - currency_network
+
+  nexus:
+    image: sonatype/nexus3:latest
+    container_name: nexus
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    volumes:
+      - nexus_data:/nexus-data
+    networks:
+      - currency_network
+
+  jenkins_slave1:
+    build: 
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: jenkins_slave1
+    ports:
+      - "3333:22"
+    networks:
+      - currency_network
+
+  jenkins_slave2:
+    build: 
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: jenkins_slave2
+    networks:
+      - currency_network
+    ports:
+      - "4444:22"
+
+  prod:
+    build: 
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: prod
+    networks:
+      - currency_network
+    ports:
+      - "5555:22"
+
 volumes:
   postgres_data:
+  jenkins_data:
+  nexus_data:
 
 network:
   currency_network
